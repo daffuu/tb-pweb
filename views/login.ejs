@@ -1,24 +1,42 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - FTI Logistik</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Setup warna dasar ala Basecoat UI */
+        :root { --background: 0 0% 100%; --foreground: 222.2 84% 4.9%; --primary: 221.2 83.2% 53.3%; --primary-foreground: 210 40% 98%; --border: 214.3 31.8% 91.4%; --ring: 221.2 83.2% 53.3%; --radius: 0.5rem; }
+        .input { display: flex; height: 2.5rem; width: 100%; border-radius: var(--radius); border: 1px solid hsl(var(--border)); background-color: transparent; padding: 0.5rem 0.75rem; font-size: 0.875rem; transition: outline 0.2s; }
+        .input:focus { outline: 2px solid hsl(var(--ring)); outline-offset: 2px; }
+        .btn { display: inline-flex; align-items: center; justify-content: center; border-radius: var(--radius); font-weight: 500; height: 2.5rem; padding: 0.5rem 1rem; background-color: hsl(var(--primary)); color: hsl(var(--primary-foreground)); cursor: pointer; width: 100%; }
+        .btn:hover { opacity: 0.9; }
+        .card { border-radius: var(--radius); border: 1px solid hsl(var(--border)); background-color: hsl(var(--background)); color: hsl(var(--foreground)); box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 1.5rem; }
+    </style>
 </head>
-<body>
-    <h2>Login Admin FTI Logistik</h2>
-    <form action="/login" method="POST">
-        <div>
-            <label>Email:</label><br>
-            <input type="email" name="email" value="admin@logistik.com" required>
+<body class="bg-gray-50 flex items-center justify-center min-h-screen">
+
+    <div class="card w-full max-w-md">
+        <div class="text-center mb-6">
+            <h2 class="text-2xl font-bold">FTI Logistik</h2>
+            <p class="text-sm text-gray-500">Silakan login ke akun admin Anda</p>
         </div>
-        <br>
-        <div>
-            <label>Password:</label><br>
-            <input type="password" name="password" required>
-        </div>
-        <br>
-        <button type="submit">Login Bro!</button>
-    </form>
+
+        <form action="/login" method="POST" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium mb-1">Email</label>
+                <input type="email" name="email" class="input" value="admin@logistik.com" required>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium mb-1">Password</label>
+                <input type="password" name="password" class="input" required>
+            </div>
+            
+            <button type="submit" class="btn mt-4">Login Bro!</button>
+        </form>
+    </div>
+
 </body>
 </html>
