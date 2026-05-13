@@ -66,7 +66,7 @@ const { isAuth } = require('./middlewares/auth');
 
 // Route Dashboard dengan proteksi middleware
 app.get('/dashboard', isAuth, (req, res) => {
-    res.render('dashboard', { role: req.session.role }); // Kita lempar data role ke EJS
+    res.render('dashboard', { role: req.session.role });
 });
 
 // Route Logout
