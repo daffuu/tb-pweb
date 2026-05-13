@@ -66,11 +66,7 @@ const { isAuth } = require('./middlewares/auth');
 
 // Route Dashboard dengan proteksi middleware
 app.get('/dashboard', isAuth, (req, res) => {
-    res.send(`
-        <h2>Halo ${req.session.role}! Selamat datang di Dashboard FTI Logistik.</h2>
-        <p>Anda memiliki akses ke halaman ini.</p>
-        <a href="/logout"><button>Logout</button></a>
-    `);
+    res.render('dashboard', { role: req.session.role }); // Kita lempar data role ke EJS
 });
 
 // Route Logout
