@@ -11,14 +11,14 @@ const pool = mysql.createPool({
     queueLimit: 0
 });
 
-// Tes koneksi 
+// Verifikasi koneksi ke database saat server dijalankan
 pool.getConnection()
     .then(conn => {
-        console.log('Database fti_logistik berhasil connect bro!');
+        console.log('Koneksi ke database fti_logistik berhasil.');
         conn.release();
     })
     .catch(err => {
-        console.error('Waduh, gagal connect database:', err);
+        console.error('Gagal terhubung ke database:', err);
     });
 
 module.exports = pool;

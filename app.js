@@ -1,107 +1,74 @@
 const express = require('express');
 const app = express();
-const db = require('./config/db'); // Manggil koneksi DB yang tadi
+const db = require('./config/db'); // Menginisialisasi koneksi database
 require('dotenv').config();
-
 const session = require('express-session');
+const bcrypt = require('bcrypt');
 
-// Setup EJS untuk render HTML
+// Menyiapkan EJS sebagai view engine
 app.set('view engine', 'ejs');
 
-// Setup Session biar user tetap login
+// Konfigurasi session untuk manajemen login
 app.use(session({
-    secret: 'rahasia_negara_b9', // Password Bebas
+    secret: 'rahasia_negara_b9', // Secret key untuk session
     resave: false,
     saveUninitialized: false
 }));
 
-// Middleware biar bisa baca form input & JSON (ini udah ada dari sebelumnya)
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-
-// Middleware 
+// Middleware untuk membaca form input & JSON
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // Route test awal
 app.get('/', (req, res) => {
-    res.send('Server FTI Logistik Jalan Bro!');
+    res.send('Server FTI Logistik Berjalan Baik.');
 });
 
-const bcrypt = require('bcrypt');
-
-// Route sementara
-app.get('/setup-admin', async (req, res) => {
-    try {
-        //hash password 'admin123'
-        const passwordHash = await bcrypt.hash('admin123', 10);
-        
-        //Insert ke tabel users
-        const [userResult] = await db.execute(
-            'INSERT INTO users (name, email, password) VALUES (?, ?, ?)', 
-            ['Admin FTI', 'admin@logistik.com', passwordHash]
-        );
-        
-        const userId = userResult.insertId;
-
-        // 3. Assign role 'admin_logistik' (id = 1) ke user ini
-        await db.execute(
-            'INSERT INTO model_has_roles (role_id, model_type, model_id) VALUES (?, ?, ?)',
-            [1, 'User', userId] 
-        );
-
-        res.send('Mantap bro! Akun Admin berhasil dibuat. Coba cek phpMyAdmin lo. Email: admin@logistik.com | Pass: admin123');
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Waduh, error bro: ' + error.message);
-    }
-});
-
-//Form Login
+// Menampilkan Form Login
 app.get('/login', (req, res) => {
-    res.render('login'); // Nanti kita bikin file login.ejs
+    res.render('login');
 });
 
-//Proses Form Login
+// Proses Form Login
 app.post('/login', async (req, res) => {
     const { email, password } = req.body;
     
     try {
-        //Cari user di database berdasarkan email
+        // Mengecek ketersediaan user di database berdasarkan email
         const [users] = await db.execute('SELECT * FROM users WHERE email = ?', [email]);
         
-        //Kalau email nggak ketemu
+        // Handling jika email tidak ditemukan
         if (users.length === 0) {
-            return res.send('Waduh, email tidak ditemukan bro!');
+            return res.send('Email tidak ditemukan.');
         }
 
         const user = users[0];
 
-        //Cocokin password yang diketik sama yang udah di hash di database
+        // Memverifikasi kecocokan password dengan hash di database
         const match = await bcrypt.compare(password, user.password);
         
         if (!match) {
-            return res.send('Password salah bro!');
+            return res.send('Password tidak valid.');
         }
 
-        //Kalau sukses, simpan data user ke dalam session
+        // Menyimpan data kredensial ke dalam session jika login berhasil
         req.session.userId = user.id;
         req.session.role = 'admin_logistik';
-        res.send(`Login Sukses! Selamat datang, ${user.name}. Session lo aman.`);
+        res.send(`Login Berhasil! Selamat datang, ${user.name}. <br><br><a href="/dashboard">Masuk ke Dashboard</a>`);
     } catch (error) {
         console.error(error);
-        res.status(500).send('Error di server: ' + error.message);
+        res.status(500).send('Terjadi kesalahan pada server: ' + error.message);
     }
 });
 
 // Import middleware isAuth
 const { isAuth } = require('./middlewares/auth');
 
-// Route Dashboard (Cuma bisa diakses kalau lolos isAuth)
+// Route Dashboard dengan proteksi middleware
 app.get('/dashboard', isAuth, (req, res) => {
     res.send(`
-        <h2>Halo ${req.session.role}! Ini halaman Dashboard rahasia.</h2>
-        <p>Cuma user yang udah login yang bisa liat halaman ini.</p>
+        <h2>Halo ${req.session.role}! Selamat datang di Dashboard FTI Logistik.</h2>
+        <p>Anda memiliki akses ke halaman ini.</p>
         <a href="/logout"><button>Logout</button></a>
     `);
 });
@@ -110,13 +77,13 @@ app.get('/dashboard', isAuth, (req, res) => {
 app.get('/logout', (req, res) => {
     req.session.destroy((err) => {
         if (err) {
-            return res.send('Gagal logout bro!');
+            return res.send('Gagal melakukan logout.');
         }
-        res.send('Sip, lo udah berhasil logout. <a href="/login">Login lagi</a>');
+        res.send('Anda telah berhasil logout. <a href="/login">Kembali ke Login</a>');
     });
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Server nyala di http://localhost:${PORT}`);
+    console.log(`Server berjalan pada http://localhost:${PORT}`);
 });

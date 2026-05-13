@@ -1,11 +1,11 @@
-// Middleware untuk ngecek user udah login atau belum
+// Middleware untuk memvalidasi sesi login user
 const isAuth = (req, res, next) => {
-    // Kalau ada userId di session = udah login
+    // Lanjutkan request jika session user valid
     if (req.session.userId) {
         next();
     } else {
-        // Kalau belum login = balik ke login
-        res.send('Wah, lo dilarang masuk bro! Harus login dulu. <a href="/login">Balik ke Login</a>');
+        // Tolak akses jika belum login
+        res.send('Akses ditolak. Silakan login terlebih dahulu. <br><a href="/login">Kembali ke Login</a>');
     }
 };
 
